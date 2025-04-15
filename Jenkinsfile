@@ -29,10 +29,14 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh "docker build -t ${ECR_REPO}:${IMAGE_TAG} ./frontend/Dockerfile"
+                    sh """
+                        cd frontend
+                        docker build -t ${ECR_REPO}:${IMAGE_TAG} .
+                    """
                 }
             }
         }
+
 
         stage('Push to ECR') {
             steps {
