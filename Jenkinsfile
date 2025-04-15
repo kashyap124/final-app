@@ -58,6 +58,7 @@ pipeline {
                     // Update kubeconfig to point to the correct EKS cluster
                     sh '''
                         echo "[+] Updating kubeconfig for EKS"
+                        aws sts get-caller-identity
                         aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
                         kubectl config current-context
                     '''
