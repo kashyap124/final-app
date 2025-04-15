@@ -4,9 +4,9 @@ pipeline {
     environment {
         AWS_REGION = 'ap-southeast-2'
         ECR_REPO = '203056033321.dkr.ecr.ap-southeast-2.amazonaws.com/namaspace-oms/node-application'
-        IMAGE_TAG = 'latest'
         CLUSTER_NAME = 'k8-cluster01'
     }
+
 
     stages {
         stage('Clone Repo') {
@@ -17,14 +17,16 @@ pipeline {
             }
         }
 
+
         stage('Set Image Tag') {
             steps {
                 script {
-                    IMAGE_TAG = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+                    IMAGE_TAG = "${env.BUILD_NUMBER}"
                     env.IMAGE_TAG = IMAGE_TAG
                 }
             }
         }
+
 
         stage('Build Docker Image') {
             steps {
@@ -49,14 +51,30 @@ pipeline {
             }
         }
 
+
         stage('Deploy to EKS') {
             steps {
                 script {
-                    sh """
-                        aws eks update-kubeconfig --region ${AWS_REGION} --name ${CLUSTER_NAME}
-                        kubectl set image deployment/your-deployment-name your-container-name=${ECR_REPO}:${IMAGE_TAG} -n your-namespace
-                        kubectl rollout status deployment/your-deployment-name -n your-namespace
-                    """
+                    // Update kubeconfig to point to the correct EKS cluster
+                    sh '''
+                        echo "[+] Updating kubeconfig for EKS"
+                        aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
+                    '''
+
+                    // Authenticate Docker to ECR
+                    sh '''
+                        echo "[+] Logging in to Amazon ECR"
+                        aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
+                    '''
+
+                    // Deploy application using Kubernetes manifests already in repository
+                    sh '''
+                        echo "[+] Applying Kubernetes deployment and service"
+                        kubectl apply -f k8s-manifest/frontenddeployment.yaml
+                        kubectl apply -f k8s-manifest/frontendservice.yaml
+                    '''
+
+                    echo "[✓] Deployment completed"
                 }
             }
         }
