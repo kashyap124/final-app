@@ -59,6 +59,7 @@ pipeline {
                     sh '''
                         echo "[+] Updating kubeconfig for EKS"
                         aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
+                        kubectl config current-context
                     '''
 
                     // Authenticate Docker to ECR
