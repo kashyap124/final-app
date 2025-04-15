@@ -70,8 +70,8 @@ pipeline {
                     // Deploy application using Kubernetes manifests already in repository
                     sh '''
                         echo "[+] Applying Kubernetes deployment and service"
-                        kubectl apply -f k8s-manifest/frontenddeployment.yaml
-                        kubectl apply -f k8s-manifest/frontendservice.yaml
+                        kubectl apply -f k8s-manifest/frontend-deployment.yaml
+                        kubectl apply -f k8s-manifest/frontend-service.yaml
                     '''
 
                     echo "[✓] Deployment completed"
