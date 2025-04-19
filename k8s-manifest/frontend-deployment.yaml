@@ -14,9 +14,9 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: your-dockerhub-username/frontend:latest
+          image: 203056033321.dkr.ecr.ap-southeast-2.amazonaws.com/namaspace-oms/node-application:latest
           ports:
             - containerPort: 3000
           env:
             - name: REACT_APP_BACKEND_URL
-              value: "http://backend:5000"
+              value: "http://localhost:5000"
